@@ -1,5 +1,28 @@
-bin/*
-build/*
-.vscode/*
+# Build directories
+bin/
+build/
+dist/
+
+# IDE and Editor files
+.vscode/
 .clangd
-CMakeUserPresets.json
+
+# Python virtual environments
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python build artifacts
+*.egg-info/
+.eggs/
+
+# UV specific
+.python-version
+uv.lock
+
+# Environment variables
+.env
+.env.local

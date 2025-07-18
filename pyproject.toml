@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcp-server-demo"
+version = "0.1.0"
+description = "MCP Server Demo - Integration example for MCP"
+authors = [{ name = "Your Name", email = "your.email@example.com" }]
+dependencies = ["fastmcp>=0.2.0"]
+requires-python = ">=3.10"
+
+[project.scripts]
+mcp-server-demo = "mcp_server.server:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mcp_server*"]
+exclude = ["cpp_app*"]

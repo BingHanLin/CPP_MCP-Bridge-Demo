@@ -1,7 +1,9 @@
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <random>
 #include <sstream>
+
 
 #include "commandHandler.hpp"
 
@@ -187,7 +189,7 @@ nlohmann::json commandHandler::saveProject(const nlohmann::json &params)
     {
         std::string filename = params.value("filename", current_project_ + ".json");
 
-        // Simulate saving project
+        // Create project data structure
         nlohmann::json project_data = {{"project_name", current_project_}, {"objects", nlohmann::json::object()}};
 
         for (const auto &pair : objects_)
@@ -195,7 +197,18 @@ nlohmann::json commandHandler::saveProject(const nlohmann::json &params)
             project_data["objects"][pair.first] = objectToJson(pair.second);
         }
 
-        return {{"success", true}, {"message", "Project saved successfully"}, {"filename", filename}};
+        // Actually write the file to disk
+        std::ofstream file(filename);
+        if (file.is_open())
+        {
+            file << project_data.dump(4);  // Pretty print with 4 spaces indentation
+            file.close();
+            return {{"success", true}, {"message", "Project saved successfully"}, {"filename", filename}};
+        }
+        else
+        {
+            return {{"success", false}, {"error", "Could not open file for writing: " + filename}};
+        }
     }
     catch (const std::exception &e)
     {
@@ -209,13 +222,53 @@ nlohmann::json commandHandler::loadProject(const nlohmann::json &params)
     {
         std::string filename = params.value("filename", "");
 
-        // Simulate loading project
-        current_project_ = filename;
+        // Actually read the file from disk
+        std::ifstream file(filename);
+        if (file.is_open())
+        {
+            nlohmann::json project_data;
+            file >> project_data;
+            file.close();
 
-        return {{"success", true},
-                {"message", "Project loaded successfully"},
-                {"filename", filename},
-                {"objects_loaded", objects_.size()}};
+            // Clear existing objects
+            objects_.clear();
+
+            // Load objects from file
+            if (project_data.contains("objects"))
+            {
+                for (const auto &[id, obj_data] : project_data["objects"].items())
+                {
+                    softwareObject obj;
+                    obj.name = obj_data.value("name", "");
+                    obj.type = obj_data.value("type", "");
+
+                    if (obj_data.contains("properties"))
+                    {
+                        for (const auto &[prop_key, prop_value] : obj_data["properties"].items())
+                        {
+                            obj.properties[prop_key] = prop_value.get<std::string>();
+                        }
+                    }
+
+                    objects_[id] = obj;
+                }
+            }
+
+            // Update current project name
+            if (project_data.contains("project_name"))
+            {
+                current_project_ = project_data["project_name"];
+            }
+
+            return {{"success", true},
+                    {"message", "Project loaded successfully"},
+                    {"filename", filename},
+                    {"objects_loaded", objects_.size()}};
+        }
+        else
+        {
+            return {{"success", false}, {"error", "Could not open file for reading: " + filename}};
+        }
     }
     catch (const std::exception &e)
     {
