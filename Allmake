@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Run from this directory
+cd ${0%/*} ||exit 1     
+
+# Create a build directory
+mkdir build             
+
+# Generate a project buildsystem
+cmake   -S cpp_app  -B build \
+        -DCMAKE_BUILD_TYPE=Release
+
+# Build a project
+cmake --build build --config Release
