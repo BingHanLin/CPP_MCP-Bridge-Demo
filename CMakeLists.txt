@@ -28,6 +28,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/cpp_app/main.cpp
     ${PROJECT_SOURCE_DIR}/cpp_app/commandHandler.cpp
     ${PROJECT_SOURCE_DIR}/cpp_app/commandServer.cpp
+    ${PROJECT_SOURCE_DIR}/cpp_app/softwareCore.cpp
 )
 
 # Create executable

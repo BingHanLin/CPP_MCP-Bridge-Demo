@@ -1,43 +1,21 @@
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <random>
-#include <sstream>
-
-
 #include "commandHandler.hpp"
 
-commandHandler::commandHandler() : currentProject_("untitled_project"), isRunning_(true)
-{
-    // Initialize with some sample objects
-    softwareObject obj1 = {"default_cube", "cube", {{"size", "1.0"}, {"color", "white"}}};
-    softwareObject obj2 = {"default_camera", "camera", {{"position", "0,0,5"}, {"rotation", "0,0,0"}}};
-
-    objects_["obj_001"] = obj1;
-    objects_["obj_002"] = obj2;
-}
+commandHandler::commandHandler() = default;
 
 nlohmann::json commandHandler::getSoftwareInfo(const nlohmann::json &params)
-{    nlohmann::json result = {
-        {"software_name", "My Example Software"},
-        {"version", "1.0.0"},
-        {"status", isRunning_ ? "running" : "stopped"},
-        {"current_project", currentProject_},
-        {"total_objects", objects_.size()},
-        {"available_commands", nlohmann::json::array({"get_software_info", "get_software_status", "create_object",
-                                                      "delete_object", "list_objects", "get_object_info",
-                                                      "execute_software_command", "save_project", "load_project"})}};
-
-    return result;
+{
+    auto info = core_.getSoftwareInfo();
+    return softwareInfoToJson(info);
 }
 
 nlohmann::json commandHandler::getSoftwareStatus(const nlohmann::json &params)
-{    nlohmann::json result = {{"running", isRunning_},
-                             {"current_project", currentProject_},
-                             {"object_count", objects_.size()},
+{
+    auto status = core_.getSoftwareStatus();
+    nlohmann::json result = {{"running", status.isRunning_},
+                             {"current_project", status.currentProject_},
+                             {"object_count", status.totalObjects_},
                              {"memory_usage", "45.2 MB"},
                              {"uptime", "2h 15m 30s"}};
-
     return result;
 }
 
@@ -48,36 +26,44 @@ nlohmann::json commandHandler::createObject(const nlohmann::json &params)
         std::string name = params.value("name", "new_object");
         std::string type = params.value("type", "cube");
 
-        std::string id = generateObjectId();        softwareObject obj;
-        obj.name_ = name;
-        obj.type_ = type;
-        obj.properties_["created_at"] = "now";
-        obj.properties_["id"] = id;
-
-        // Add type-specific properties
-        if (type == "cube")
+        // Extract properties from params
+        std::map<std::string, std::string> properties;
+        if (params.contains("size"))
         {
-            obj.properties_["size"] = params.value("size", "1.0");
-            obj.properties_["color"] = params.value("color", "white");
+            properties["size"] = params["size"];
         }
-        else if (type == "sphere")
+        if (params.contains("radius"))
         {
-            obj.properties_["radius"] = params.value("radius", "0.5");
-            obj.properties_["color"] = params.value("color", "white");
+            properties["radius"] = params["radius"];
         }
-        else if (type == "camera")
+        if (params.contains("color"))
         {
-            obj.properties_["position"] = params.value("position", "0,0,5");
-            obj.properties_["rotation"] = params.value("rotation", "0,0,0");
+            properties["color"] = params["color"];
+        }
+        if (params.contains("position"))
+        {
+            properties["position"] = params["position"];
+        }
+        if (params.contains("rotation"))
+        {
+            properties["rotation"] = params["rotation"];
         }
 
-        objects_[id] = obj;
+        std::string id = core_.createObject(name, type, properties);
+        if (!id.empty())
+        {
+            softwareCore::softwareObject obj;
+            if (core_.getObjectInfo(id, obj))
+            {
+                return createSuccessResponse({{"object_id", id}, {"object", objectToJson(obj)}});
+            }
+        }
 
-        return {{"success", true}, {"object_id", id}, {"object", objectToJson(obj)}};
+        return createErrorResponse("Failed to create object");
     }
     catch (const std::exception &e)
     {
-        return {{"success", false}, {"error", e.what()}};
+        return createErrorResponse(e.what());
     }
 }
 
@@ -87,34 +73,33 @@ nlohmann::json commandHandler::deleteObject(const nlohmann::json &params)
     {
         std::string id = params.value("id", "");
 
-        auto it = objects_.find(id);
-        if (it != objects_.end())
+        if (core_.deleteObject(id))
         {
-            objects_.erase(it);
-            return {{"success", true}, {"message", "Object deleted successfully"}};
+            return createSuccessResponse({{"message", "Object deleted successfully"}});
         }
         else
         {
-            return {{"success", false}, {"error", "Object not found"}};
+            return createErrorResponse("Object not found");
         }
     }
     catch (const std::exception &e)
     {
-        return {{"success", false}, {"error", e.what()}};
+        return createErrorResponse(e.what());
     }
 }
 
 nlohmann::json commandHandler::listObjects(const nlohmann::json &params)
 {
+    auto objects = core_.listObjects();
     nlohmann::json objects_list = nlohmann::json::array();
 
-    for (const auto &pair : objects_)
+    for (const auto &pair : objects)
     {
         nlohmann::json obj_summary = {{"id", pair.first}, {"name", pair.second.name_}, {"type", pair.second.type_}};
         objects_list.push_back(obj_summary);
     }
 
-    return {{"total_count", objects_.size()}, {"objects", objects_list}};
+    return {{"total_count", objects.size()}, {"objects", objects_list}};
 }
 
 nlohmann::json commandHandler::getObjectInfo(const nlohmann::json &params)
@@ -122,20 +107,20 @@ nlohmann::json commandHandler::getObjectInfo(const nlohmann::json &params)
     try
     {
         std::string id = params.value("id", "");
+        softwareCore::softwareObject obj;
 
-        auto it = objects_.find(id);
-        if (it != objects_.end())
+        if (core_.getObjectInfo(id, obj))
         {
-            return {{"success", true}, {"object", objectToJson(it->second)}};
+            return createSuccessResponse({{"object", objectToJson(obj)}});
         }
         else
         {
-            return {{"success", false}, {"error", "Object not found"}};
+            return createErrorResponse("Object not found");
         }
     }
     catch (const std::exception &e)
     {
-        return {{"success", false}, {"error", e.what()}};
+        return createErrorResponse(e.what());
     }
 }
 
@@ -144,69 +129,70 @@ nlohmann::json commandHandler::executeSoftwareCommand(const nlohmann::json &para
     try
     {
         std::string command = params.value("command", "");
+        std::map<std::string, std::string> cmdParams;
 
-        if (command == "render")
+        // Extract any additional parameters
+        if (params.contains("params") && params["params"].is_object())
         {
-            return {
-                {"success", true}, {"message", "Render completed successfully"}, {"output_file", "render_output.png"}};
-        }
-        else if (command == "clear_scene")
-        {
-            objects_.clear();
-            return {{"success", true}, {"message", "Scene cleared successfully"}};
-        }
-        else if (command == "reset_camera")
-        {            // Find and reset camera
-            for (auto &pair : objects_)
+            for (const auto &item : params["params"].items())
             {
-                if (pair.second.type_ == "camera")
+                if (item.value().is_string())
                 {
-                    pair.second.properties_["position"] = "0,0,5";
-                    pair.second.properties_["rotation"] = "0,0,0";
+                    cmdParams[item.key()] = item.value().get<std::string>();
                 }
             }
-            return {{"success", true}, {"message", "Camera reset successfully"}};
+        }
+
+        if (core_.executeCommand(command, cmdParams))
+        {
+            if (command == "render")
+            {
+                return createSuccessResponse(
+                    {{"message", "Render completed successfully"}, {"output_file", "render_output.png"}});
+            }
+            else if (command == "clear_scene")
+            {
+                return createSuccessResponse({{"message", "Scene cleared successfully"}});
+            }
+            else if (command == "reset_camera")
+            {
+                return createSuccessResponse({{"message", "Camera reset successfully"}});
+            }
+            else
+            {
+                return createSuccessResponse({{"message", "Command executed successfully"}});
+            }
         }
         else
         {
-            return {{"success", false}, {"error", "Unknown command: " + command}};
+            return createErrorResponse("Unknown command: " + command);
         }
     }
     catch (const std::exception &e)
     {
-        return {{"success", false}, {"error", e.what()}};
+        return createErrorResponse(e.what());
     }
 }
 
 nlohmann::json commandHandler::saveProject(const nlohmann::json &params)
 {
     try
-    {        std::string filename = params.value("filename", currentProject_ + ".json");
+    {
+        auto info = core_.getSoftwareInfo();
+        std::string filename = params.value("filename", info.currentProject_ + ".json");
 
-        // Create project data structure
-        nlohmann::json project_data = {{"project_name", currentProject_}, {"objects", nlohmann::json::object()}};
-
-        for (const auto &pair : objects_)
+        if (core_.saveProject(filename))
         {
-            project_data["objects"][pair.first] = objectToJson(pair.second);
-        }
-
-        // Actually write the file to disk
-        std::ofstream file(filename);
-        if (file.is_open())
-        {
-            file << project_data.dump(4);  // Pretty print with 4 spaces indentation
-            file.close();
-            return {{"success", true}, {"message", "Project saved successfully"}, {"filename", filename}};
+            return createSuccessResponse({{"message", "Project saved successfully"}, {"filename", filename}});
         }
         else
         {
-            return {{"success", false}, {"error", "Could not open file for writing: " + filename}};
+            return createErrorResponse("Could not save project to file: " + filename);
         }
     }
     catch (const std::exception &e)
     {
-        return {{"success", false}, {"error", e.what()}};
+        return createErrorResponse(e.what());
     }
 }
 
@@ -216,58 +202,25 @@ nlohmann::json commandHandler::loadProject(const nlohmann::json &params)
     {
         std::string filename = params.value("filename", "");
 
-        // Actually read the file from disk
-        std::ifstream file(filename);
-        if (file.is_open())
+        if (core_.loadProject(filename))
         {
-            nlohmann::json project_data;
-            file >> project_data;
-            file.close();
-
-            // Clear existing objects
-            objects_.clear();
-
-            // Load objects from file
-            if (project_data.contains("objects"))
-            {                for (const auto &[id, obj_data] : project_data["objects"].items())
-                {
-                    softwareObject obj;
-                    obj.name_ = obj_data.value("name", "");
-                    obj.type_ = obj_data.value("type", "");
-                    
-                    if (obj_data.contains("properties"))
-                    {
-                        for (const auto &[prop_key, prop_value] : obj_data["properties"].items())
-                        {
-                            obj.properties_[prop_key] = prop_value.get<std::string>();
-                        }
-                    }
-                    
-                    objects_[id] = obj;
-                }
-            }            // Update current project name
-            if (project_data.contains("project_name"))
-            {
-                currentProject_ = project_data["project_name"];
-            }
-
-            return {{"success", true},
-                    {"message", "Project loaded successfully"},
-                    {"filename", filename},
-                    {"objects_loaded", objects_.size()}};
+            auto objects = core_.listObjects();
+            return createSuccessResponse({{"message", "Project loaded successfully"},
+                                          {"filename", filename},
+                                          {"objects_loaded", objects.size()}});
         }
         else
         {
-            return {{"success", false}, {"error", "Could not open file for reading: " + filename}};
+            return createErrorResponse("Could not load project from file: " + filename);
         }
     }
     catch (const std::exception &e)
     {
-        return {{"success", false}, {"error", e.what()}};
+        return createErrorResponse(e.what());
     }
 }
 
-nlohmann::json commandHandler::objectToJson(const softwareObject &obj)
+nlohmann::json commandHandler::objectToJson(const softwareCore::softwareObject &obj)
 {
     nlohmann::json properties = nlohmann::json::object();
     for (const auto &prop : obj.properties_)
@@ -278,13 +231,30 @@ nlohmann::json commandHandler::objectToJson(const softwareObject &obj)
     return {{"name", obj.name_}, {"type", obj.type_}, {"properties", properties}};
 }
 
-std::string commandHandler::generateObjectId()
+nlohmann::json commandHandler::softwareInfoToJson(const softwareCore::softwareInfo &info)
 {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<> dis(1000, 9999);
+    return {
+        {"software_name", info.name_},
+        {"version", info.version_},
+        {"status", info.isRunning_ ? "running" : "stopped"},
+        {"current_project", info.currentProject_},
+        {"total_objects", info.totalObjects_},
+        {"available_commands", nlohmann::json::array({"get_software_info", "get_software_status", "create_object",
+                                                      "delete_object", "list_objects", "get_object_info",
+                                                      "execute_software_command", "save_project", "load_project"})}};
+}
 
-    std::stringstream ss;
-    ss << "obj_" << std::setfill('0') << std::setw(3) << dis(gen);
-    return ss.str();
+nlohmann::json commandHandler::createSuccessResponse(const nlohmann::json &data)
+{
+    nlohmann::json result = {{"success", true}};
+    for (const auto &item : data.items())
+    {
+        result[item.key()] = item.value();
+    }
+    return result;
+}
+
+nlohmann::json commandHandler::createErrorResponse(const std::string &message)
+{
+    return {{"success", false}, {"error", message}};
 }

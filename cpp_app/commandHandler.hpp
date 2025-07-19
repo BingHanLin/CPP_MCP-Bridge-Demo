@@ -5,38 +5,31 @@
 #include <vector>
 
 #include "nlohmann/json.hpp"
+#include "softwareCore.hpp"
 
+// Command handler - responsible for parsing commands and delegating to core
 class commandHandler
 {
   public:
     commandHandler();
 
-    // Basic software information
+    // Command processing - these methods parse JSON and delegate to core
     nlohmann::json getSoftwareInfo(const nlohmann::json &params);
     nlohmann::json getSoftwareStatus(const nlohmann::json &params);
-
-    // Object management
     nlohmann::json createObject(const nlohmann::json &params);
     nlohmann::json deleteObject(const nlohmann::json &params);
     nlohmann::json listObjects(const nlohmann::json &params);
     nlohmann::json getObjectInfo(const nlohmann::json &params);
-
-    // Software operations
     nlohmann::json executeSoftwareCommand(const nlohmann::json &params);
     nlohmann::json saveProject(const nlohmann::json &params);
     nlohmann::json loadProject(const nlohmann::json &params);
 
-  private:    // Simulate software state
-    struct softwareObject
-    {
-        std::string name_;
-        std::string type_;
-        std::map<std::string, std::string> properties_;
-    };std::map<std::string, softwareObject> objects_;
-    std::string currentProject_;
-    bool isRunning_;
+  private:
+    softwareCore core_;  // The actual business logic
 
-    // Helper methods
-    nlohmann::json objectToJson(const softwareObject &obj);
-    std::string generateObjectId();
+    // Helper methods for JSON conversion
+    static nlohmann::json objectToJson(const softwareCore::softwareObject &obj);
+    static nlohmann::json softwareInfoToJson(const softwareCore::softwareInfo &info);
+    static nlohmann::json createSuccessResponse(const nlohmann::json &data);
+    static nlohmann::json createErrorResponse(const std::string &message);
 };
