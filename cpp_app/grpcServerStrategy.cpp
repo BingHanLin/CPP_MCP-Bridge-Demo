@@ -4,7 +4,7 @@
 #include "grpcServerStrategy.hpp"
 #include "nlohmann/json.hpp"
 
-grpcServerStrategy::grpcServerStrategy()
+grpcServerStrategy::grpcServerStrategy(const std::string& address) : address_(address)
 {
     // No need to create a separate service - this class IS the service
 }
@@ -17,14 +17,14 @@ grpcServerStrategy::~grpcServerStrategy()
     }
 }
 
-void grpcServerStrategy::start(const std::string& address)
+void grpcServerStrategy::start()
 {
     try
     {
         grpc::ServerBuilder builder;
 
         // Listen on the given address without any authentication mechanism
-        builder.AddListeningPort(address, grpc::InsecureServerCredentials());
+        builder.AddListeningPort(address_, grpc::InsecureServerCredentials());
 
         // Register this object as the service (since we inherit from MCPService::Service)
         builder.RegisterService(this);
@@ -37,7 +37,7 @@ void grpcServerStrategy::start(const std::string& address)
             throw std::runtime_error("Failed to start gRPC server");
         }
 
-        std::cout << "Starting gRPC Server on " << address << "..." << std::endl;
+        std::cout << "Starting gRPC Server on " << address_ << "..." << std::endl;
 
         // Wait for the server to shutdown (blocking)
         server_->Wait();

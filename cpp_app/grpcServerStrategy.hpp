@@ -10,10 +10,10 @@
 class grpcServerStrategy : public serverStrategy, public mcp::MCPService::Service
 {
   public:
-    grpcServerStrategy();
+    explicit grpcServerStrategy(const std::string& address);
     ~grpcServerStrategy() override;
 
-    void start(const std::string& address) override;
+    void start() override;
 
     // gRPC service method implementations
     grpc::Status GetSoftwareInfo(grpc::ServerContext* context, const mcp::GetSoftwareInfoRequest* request,
@@ -45,6 +45,7 @@ class grpcServerStrategy : public serverStrategy, public mcp::MCPService::Servic
 
   private:
     std::unique_ptr<grpc::Server> server_;
+    std::string address_;
 
     // Helper methods for conversion between protobuf and JSON
     static nlohmann::json protoToJson(const mcp::CreateObjectRequest& request);

@@ -18,7 +18,7 @@
 #define closesocket close
 #endif
 
-socketServerStrategy::socketServerStrategy() : port_(9876), running_(false)
+socketServerStrategy::socketServerStrategy(const int& port) : port_(port), running_(false)
 {
 #ifdef _WIN32
     initializeWinsock();
@@ -41,7 +41,7 @@ socketServerStrategy::~socketServerStrategy()
 #endif
 }
 
-void socketServerStrategy::start(const std::string& address)
+void socketServerStrategy::start()
 {
     if (running_)
     {
@@ -51,7 +51,6 @@ void socketServerStrategy::start(const std::string& address)
 
     try
     {
-        port_ = parsePort(address);
         running_ = true;
 
         std::cout << "Starting Socket Server on port " << port_ << "..." << std::endl;
@@ -161,13 +160,13 @@ void socketServerStrategy::handleClient(socket_t client_socket)
                 nlohmann::json response = processCommand(request);
 
                 std::string response_str = response.dump();
-                send(client_socket, response_str.c_str(), response_str.length(), 0);
+                send(client_socket, response_str.c_str(), static_cast<int>(response_str.length()), 0);
             }
             catch (const std::exception& e)
             {
                 nlohmann::json error_response = {{"error", "Invalid JSON or processing error"}, {"message", e.what()}};
                 std::string response_str = error_response.dump();
-                send(client_socket, response_str.c_str(), response_str.length(), 0);
+                send(client_socket, response_str.c_str(), static_cast<int>(response_str.length()), 0);
             }
         }
     }
@@ -205,23 +204,6 @@ nlohmann::json socketServerStrategy::processCommand(const nlohmann::json& reques
     else
     {
         return {{"error", "Unknown command"}, {"command", command}};
-    }
-}
-
-int socketServerStrategy::parsePort(const std::string& address)
-{
-    // Simple port parsing - expects just a port number or "host:port"
-    size_t colonPos = address.find(':');
-    if (colonPos != std::string::npos)
-    {
-        // Extract port part after ':'
-        std::string portStr = address.substr(colonPos + 1);
-        return std::stoi(portStr);
-    }
-    else
-    {
-        // Assume the whole string is a port number
-        return std::stoi(address);
     }
 }
 

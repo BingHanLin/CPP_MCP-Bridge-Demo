@@ -10,20 +10,17 @@ int main(int argc, char** argv)
 {
     try
     {
-        auto server = std::make_unique<socketServerStrategy>();
-        auto address = "9876";
+        auto server = std::make_unique<socketServerStrategy>(9876);
 
-        // auto server = std::make_unique<grpcServerStrategy>();
-        // auto address = "0.0.0.0:50051";
+        // auto server = std::make_unique<grpcServerStrategy>("0.0.0.0:50051");
 
         std::cout << "========================================" << std::endl;
         std::cout << "  C++ MCP Bridge Demo" << std::endl;
         std::cout << "========================================" << std::endl;
-        std::cout << "Address: " << address << std::endl;
         std::cout << "========================================" << std::endl;
 
         // Start the server (this will block)
-        server->start(address);
+        server->start();
     }
     catch (const std::exception& e)
     {

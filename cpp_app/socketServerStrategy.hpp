@@ -20,10 +20,10 @@ using socket_t = int;
 class socketServerStrategy : public serverStrategy
 {
   public:
-    socketServerStrategy();
+    explicit socketServerStrategy(const int& port);
     ~socketServerStrategy() override;
 
-    void start(const std::string& address) override;
+    void start() override;
 
   private:
     int port_;
@@ -36,10 +36,9 @@ class socketServerStrategy : public serverStrategy
     void serverLoop();
     void handleClient(socket_t client_socket);
     nlohmann::json processCommand(const nlohmann::json& request);
-    static int parsePort(const std::string& address);
 
 #ifdef _WIN32
-    void initializeWinsock();
-    void cleanupWinsock();
+    static void initializeWinsock();
+    static void cleanupWinsock();
 #endif
 };
