@@ -3,7 +3,6 @@
 #include <sstream>
 #include <stdexcept>
 
-
 #ifdef _WIN32
 #include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
@@ -66,11 +65,6 @@ void socketServerStrategy::start(const std::string& address)
         running_ = false;
         throw std::runtime_error("Failed to start socket server: " + std::string(e.what()));
     }
-}
-
-std::string socketServerStrategy::getServerType() const
-{
-    return "Socket";
 }
 
 void socketServerStrategy::registerHandlers()

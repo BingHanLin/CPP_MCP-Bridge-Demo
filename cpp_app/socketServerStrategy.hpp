@@ -9,7 +9,6 @@
 #include <string>
 #include <thread>
 
-
 #ifdef _WIN32
 #include <winsock2.h>
 using socket_t = SOCKET;
@@ -24,9 +23,7 @@ class socketServerStrategy : public serverStrategy
     socketServerStrategy();
     ~socketServerStrategy() override;
 
-    // ServerStrategy interface
     void start(const std::string& address) override;
-    std::string getServerType() const override;
 
   private:
     int port_;

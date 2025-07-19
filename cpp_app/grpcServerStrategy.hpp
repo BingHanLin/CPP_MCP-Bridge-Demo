@@ -1,10 +1,10 @@
 #pragma once
 
-#include "mcp_service.grpc.pb.h"
-#include "serverStrategy.hpp"
-#include <grpcpp/grpcpp.h>
 #include <memory>
 
+#include "grpcpp/grpcpp.h"
+#include "mcp_service.grpc.pb.h"
+#include "serverStrategy.hpp"
 
 // gRPC server strategy implementation that directly implements the gRPC service
 class grpcServerStrategy : public serverStrategy, public mcp::MCPService::Service
@@ -13,9 +13,7 @@ class grpcServerStrategy : public serverStrategy, public mcp::MCPService::Servic
     grpcServerStrategy();
     ~grpcServerStrategy() override;
 
-    // ServerStrategy interface
     void start(const std::string& address) override;
-    std::string getServerType() const override;
 
     // gRPC service method implementations
     grpc::Status GetSoftwareInfo(grpc::ServerContext* context, const mcp::GetSoftwareInfoRequest* request,

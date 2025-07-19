@@ -20,5 +20,17 @@ if (MSVC) # only need for multi config build system
     endforeach()
 endif()
 
+if(MSVC)
+    file(WRITE ${PROJECT_SOURCE_DIR}/.clangd "CompileFlags:\n")
+    file(APPEND ${PROJECT_SOURCE_DIR}/.clangd "    CompilationDatabase: ${CMAKE_BINARY_DIR}\n")
+    file(APPEND ${PROJECT_SOURCE_DIR}/.clangd "    Add:\n")
+
+    set(MSVC_STANDARD_INCLUDE_PATHS "$ENV{INCLUDE}")
+    foreach(ONE_PATH ${MSVC_STANDARD_INCLUDE_PATHS})
+        file(APPEND ${PROJECT_SOURCE_DIR}/.clangd "        - \"-I${ONE_PATH}\"\n")
+    endforeach()
+endif()
+
+
 add_subdirectory(proto)
 add_subdirectory(cpp_app)

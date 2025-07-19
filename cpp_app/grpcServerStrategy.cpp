@@ -1,8 +1,8 @@
-#include "grpcServerStrategy.hpp"
-#include "nlohmann/json.hpp"
-#include <grpcpp/grpcpp.h>
 #include <iostream>
 #include <stdexcept>
+
+#include "grpcServerStrategy.hpp"
+#include "nlohmann/json.hpp"
 
 grpcServerStrategy::grpcServerStrategy()
 {
@@ -48,11 +48,6 @@ void grpcServerStrategy::start(const std::string& address)
     }
 }
 
-std::string grpcServerStrategy::getServerType() const
-{
-    return "gRPC";
-}
-
 // gRPC service method implementations
 grpc::Status grpcServerStrategy::GetSoftwareInfo(grpc::ServerContext* context,
                                                  const mcp::GetSoftwareInfoRequest* request,
@@ -70,7 +65,7 @@ grpc::Status grpcServerStrategy::GetSoftwareInfo(grpc::ServerContext* context,
     }
     catch (const std::exception& e)
     {
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+        return {grpc::StatusCode::INTERNAL, e.what()};
     }
 }
 
@@ -90,7 +85,7 @@ grpc::Status grpcServerStrategy::GetSoftwareStatus(grpc::ServerContext* context,
     }
     catch (const std::exception& e)
     {
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+        return {grpc::StatusCode::INTERNAL, e.what()};
     }
 }
 
@@ -108,7 +103,7 @@ grpc::Status grpcServerStrategy::CreateObject(grpc::ServerContext* context, cons
     }
     catch (const std::exception& e)
     {
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+        return {grpc::StatusCode::INTERNAL, e.what()};
     }
 }
 
@@ -126,7 +121,7 @@ grpc::Status grpcServerStrategy::DeleteObject(grpc::ServerContext* context, cons
     }
     catch (const std::exception& e)
     {
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+        return {grpc::StatusCode::INTERNAL, e.what()};
     }
 }
 
@@ -144,7 +139,7 @@ grpc::Status grpcServerStrategy::ListObjects(grpc::ServerContext* context, const
     }
     catch (const std::exception& e)
     {
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+        return {grpc::StatusCode::INTERNAL, e.what()};
     }
 }
 
@@ -162,7 +157,7 @@ grpc::Status grpcServerStrategy::GetObjectInfo(grpc::ServerContext* context, con
     }
     catch (const std::exception& e)
     {
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+        return {grpc::StatusCode::INTERNAL, e.what()};
     }
 }
 
@@ -181,7 +176,7 @@ grpc::Status grpcServerStrategy::ExecuteSoftwareCommand(grpc::ServerContext* con
     }
     catch (const std::exception& e)
     {
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+        return {grpc::StatusCode::INTERNAL, e.what()};
     }
 }
 
@@ -199,7 +194,7 @@ grpc::Status grpcServerStrategy::SaveProject(grpc::ServerContext* context, const
     }
     catch (const std::exception& e)
     {
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+        return {grpc::StatusCode::INTERNAL, e.what()};
     }
 }
 
@@ -217,7 +212,7 @@ grpc::Status grpcServerStrategy::LoadProject(grpc::ServerContext* context, const
     }
     catch (const std::exception& e)
     {
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+        return {grpc::StatusCode::INTERNAL, e.what()};
     }
 }
 
