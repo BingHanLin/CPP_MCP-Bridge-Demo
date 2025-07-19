@@ -26,18 +26,15 @@ class commandHandler
     nlohmann::json saveProject(const nlohmann::json &params);
     nlohmann::json loadProject(const nlohmann::json &params);
 
-  private:
-    // Simulate software state
+  private:    // Simulate software state
     struct softwareObject
     {
-        std::string name;
-        std::string type;
-        std::map<std::string, std::string> properties;
-    };
-
-    std::map<std::string, softwareObject> objects_;
-    std::string current_project_;
-    bool is_running_;
+        std::string name_;
+        std::string type_;
+        std::map<std::string, std::string> properties_;
+    };std::map<std::string, softwareObject> objects_;
+    std::string currentProject_;
+    bool isRunning_;
 
     // Helper methods
     nlohmann::json objectToJson(const softwareObject &obj);
