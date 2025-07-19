@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+package mcp;
+
+// Software information message
+message SoftwareInfo {
+  string software_name = 1;
+  string version = 2;
+  string status = 3;
+  string current_project = 4;
+  int32 total_objects = 5;
+  repeated string available_commands = 6;
+}
+
+// Software status message
+message SoftwareStatus {
+  bool running = 1;
+  string current_project = 2;
+  int32 object_count = 3;
+  string memory_usage = 4;
+  string uptime = 5;
+}
+
+// Object property
+message ObjectProperty {
+  string key = 1;
+  string value = 2;
+}
+
+// Software object message
+message SoftwareObject {
+  string name = 1;
+  string type = 2;
+  repeated ObjectProperty properties = 3;
+}
+
+// Request messages
+message GetSoftwareInfoRequest {}
+
+message GetSoftwareStatusRequest {}
+
+message CreateObjectRequest {
+  string name = 1;
+  string type = 2;
+  repeated ObjectProperty properties = 3;
+}
+
+message DeleteObjectRequest {
+  string object_id = 1;
+}
+
+message ListObjectsRequest {}
+
+message GetObjectInfoRequest {
+  string object_id = 1;
+}
+
+message ExecuteSoftwareCommandRequest {
+  string command = 1;
+  repeated ObjectProperty params = 2;
+}
+
+message SaveProjectRequest {
+  string filename = 1;
+}
+
+message LoadProjectRequest {
+  string filename = 1;
+}
+
+// Response messages
+message GetSoftwareInfoResponse {
+  SoftwareInfo info = 1;
+}
+
+message GetSoftwareStatusResponse {
+  SoftwareStatus status = 1;
+}
+
+message CreateObjectResponse {
+  bool success = 1;
+  string error = 2;
+  string object_id = 3;
+  SoftwareObject object = 4;
+}
+
+message DeleteObjectResponse {
+  bool success = 1;
+  string error = 2;
+  string message = 3;
+}
+
+message ObjectSummary {
+  string id = 1;
+  string name = 2;
+  string type = 3;
+}
+
+message ListObjectsResponse {
+  int32 total_count = 1;
+  repeated ObjectSummary objects = 2;
+}
+
+message GetObjectInfoResponse {
+  bool success = 1;
+  string error = 2;
+  SoftwareObject object = 3;
+}
+
+message ExecuteSoftwareCommandResponse {
+  bool success = 1;
+  string error = 2;
+  string message = 3;
+  string output_file = 4;
+}
+
+message SaveProjectResponse {
+  bool success = 1;
+  string error = 2;
+  string message = 3;
+  string filename = 4;
+}
+
+message LoadProjectResponse {
+  bool success = 1;
+  string error = 2;
+  string message = 3;
+  string filename = 4;
+  int32 objects_loaded = 5;
+}
+
+// MCP Service definition
+service MCPService {
+  rpc GetSoftwareInfo(GetSoftwareInfoRequest) returns (GetSoftwareInfoResponse);
+  rpc GetSoftwareStatus(GetSoftwareStatusRequest) returns (GetSoftwareStatusResponse);
+  rpc CreateObject(CreateObjectRequest) returns (CreateObjectResponse);
+  rpc DeleteObject(DeleteObjectRequest) returns (DeleteObjectResponse);
+  rpc ListObjects(ListObjectsRequest) returns (ListObjectsResponse);
+  rpc GetObjectInfo(GetObjectInfoRequest) returns (GetObjectInfoResponse);
+  rpc ExecuteSoftwareCommand(ExecuteSoftwareCommandRequest) returns (ExecuteSoftwareCommandResponse);
+  rpc SaveProject(SaveProjectRequest) returns (SaveProjectResponse);
+  rpc LoadProject(LoadProjectRequest) returns (LoadProjectResponse);
+}

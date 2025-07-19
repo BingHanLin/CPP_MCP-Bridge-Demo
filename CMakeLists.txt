@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.21)
+
+cmake_minimum_required(VERSION 3.15)
 
 project(cpp_app)
 
@@ -20,49 +22,5 @@ if (MSVC) # only need for multi config build system
     endforeach()
 endif()
 
-# Find required packages
-find_package(Threads REQUIRED)
-
-# Set source files
-set(SOURCES
-    ${PROJECT_SOURCE_DIR}/cpp_app/main.cpp
-    ${PROJECT_SOURCE_DIR}/cpp_app/commandHandler.cpp
-    ${PROJECT_SOURCE_DIR}/cpp_app/commandServer.cpp
-    ${PROJECT_SOURCE_DIR}/cpp_app/softwareCore.cpp
-)
-
-# Create executable
-add_executable(${PROJECT_NAME} ${SOURCES})
-
-# Include directories
-target_include_directories(${PROJECT_NAME} 
-    PRIVATE 
-    ${PROJECT_SOURCE_DIR}/cpp_app
-)
-
-# Link libraries
-target_link_libraries(${PROJECT_NAME} 
-    PRIVATE 
-    Threads::Threads
-)
-
-# Platform-specific socket libraries
-if(WIN32)
-    target_link_libraries(${PROJECT_NAME}
-        PRIVATE 
-        ws2_32
-    )
-endif()
-
-# Compiler-specific options
-if(MSVC)
-    target_compile_options(${PROJECT_NAME}
-        PRIVATE 
-        /W4
-    )
-else()
-    target_compile_options(${PROJECT_NAME}
-        PRIVATE 
-        -Wall -Wextra -Wpedantic
-    )
-endif()
+add_subdirectory(proto)
+add_subdirectory(cpp_app)

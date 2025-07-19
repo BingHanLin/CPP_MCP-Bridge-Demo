@@ -1,15 +1,23 @@
 # C++ MCP Bridge Demo
 
-This project demonstrates how to create a bridge between C++ applications and AI assistants using a Python MCP server.
+This project demonstrates how to create a bridge between C++ applications and AI assistants using a Python MCP server. It now includes **gRPC support** for cross-language communication.
+
+## 🚀 Features
+
+-   **JSON-based MCP Server**: Python server implementing Model Context Protocol
+-   **C++ Application**: Core business logic with command processing
+-   **gRPC Communication**: High-performance protocol buffer communication
+-   **Multi-protocol Support**: Both socket-based and gRPC communication
+-   **Cross-platform**: Windows, Linux, and macOS support
 
 ## 🛠️ Build
 
 ### Prerequisites
 
--   **C++ Compiler**: 
-    - Windows: Visual Studio 2019 or later (MSVC)
-    - Linux: GCC 7+ or Clang 6+
-    - macOS: Xcode 10+ or Clang 6+
+-   **C++ Compiler**:
+    -   Windows: Visual Studio 2019 or later (MSVC)
+    -   Linux: GCC 7+ or Clang 6+
+    -   macOS: Xcode 10+ or Clang 6+
 -   **CMake**: 3.10 or higher
 -   **Python**: 3.10 or higher
 -   **UV**: Package manager (recommended) or pip
@@ -41,6 +49,29 @@ uv pip install -r requirements.txt
 
 ### Quick Start
 
+#### Unified Server (Recommended)
+
+The new unified server supports both Socket and gRPC communication through a single executable:
+
+```bash
+# Build the project
+cmake --preset MSVC_x64-debug
+cmake --build --preset MSVC_x64-debug
+
+# Run with Socket server (default)
+.\build\bin\cpp_app_unified.exe
+.\build\bin\cpp_app_unified.exe socket 9876
+
+# Run with gRPC server (if gRPC is available)
+.\build\bin\cpp_app_unified.exe grpc
+.\build\bin\cpp_app_unified.exe grpc localhost:50051
+
+# Get help
+.\build\bin\cpp_app_unified.exe help
+```
+
+#### Legacy Options (Still Available)
+
 1. **Start the C++ application**:
 
     ```bash
@@ -54,6 +85,19 @@ uv pip install -r requirements.txt
     ```
 
 3. **Use with your preferred MCP client**
+
+#### Option 2: gRPC Communication (New!)
+
+1. **Start the gRPC server**:
+
+    ```bash
+    .\build\release\MSVC_x64-release\bin\cpp_app_grpc_server.exe
+    ```
+
+2. **Connect using any gRPC client** (Python example provided in `examples/`)
+
+For detailed gRPC setup instructions, see [GRPC_SETUP.md](GRPC_SETUP.md).
+
 ### Available Commands
 
 #### Basic Information
@@ -80,27 +124,35 @@ uv pip install -r requirements.txt
     -   `clear_scene`: Clear all objects
     -   `reset_camera`: Reset camera to default position
 
-
 ## 🏗️ Architecture
 
 ### Communication Flow
 
+#### Original Architecture
+
 ```
-MCP Client ←→ Python MCP Server ←→ C++ Application
+MCP Client ←→ Python MCP Server ←→ C++ Application (Socket)
+```
+
+#### New gRPC Architecture
+
+```
+gRPC Client ←→ C++ gRPC Server ←→ C++ Application Core
+     ↓
+Any Language (Python, Node.js, Go, etc.)
 ```
 
 ### Key Components
 
-1. **C++ Application** (`cpp_app/`)
-
-    - `main.cpp`: Entry point and command handler registration
-    - `commandHandler.hpp/.cpp`: Software-specific command implementations
-    - `commandServer.hpp/.cpp`: Generic socket server for MCP communication
-    - `CMakeLists.txt`: Build configuration
-
-2. **Python MCP Server** (`mcp_server/`)
-    - `server.py`: MCP server implementation with connection management
-    - `__init__.py`: Package initialization
+-   **`cpp_app/`**: Core C++ application
+    -   `softwareCore`: Business logic and data management
+    -   `commandHandler`: Command parsing and JSON conversion
+    -   `commandServer`: Socket-based communication server
+    -   `grpcMCPService`: gRPC service implementation (new)
+    -   `grpcServer`: gRPC server main program (new)
+-   **`mcp_server/`**: Python MCP server implementation
+-   **`proto/`**: Protocol buffer definitions (new)
+-   **`examples/`**: Client examples and demos (new)
 
 ### Communication Protocol
 
