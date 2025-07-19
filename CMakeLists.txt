@@ -4,6 +4,7 @@ project(cpp_app)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CUSTOMIZE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CUSTOMIZE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
@@ -24,9 +25,9 @@ find_package(Threads REQUIRED)
 
 # Set source files
 set(SOURCES
-    main.cpp
-    commandHandler.cpp
-    commandServer.cpp
+    ${PROJECT_SOURCE_DIR}/cpp_app/main.cpp
+    ${PROJECT_SOURCE_DIR}/cpp_app/commandHandler.cpp
+    ${PROJECT_SOURCE_DIR}/cpp_app/commandServer.cpp
 )
 
 # Create executable
@@ -35,7 +36,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 # Include directories
 target_include_directories(${PROJECT_NAME} 
     PRIVATE 
-    ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/cpp_app
 )
 
 # Link libraries

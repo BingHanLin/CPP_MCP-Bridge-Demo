@@ -1,45 +1,15 @@
 # C++ MCP Bridge Demo
 
-A comprehensive example of integrating C++ software with Claude AI through the Model Context Protocol (MCP). This project demonstrates how to create a bridge between C++ applications and AI assistants using a Python MCP server.
-
-## 🚀 Project Overview
-
-This is a complete, modular MCP server project that showcases how to integrate C++ software with Claude AI. It provides a clean architecture for two-way communication between C++ applications and AI assistants.
-
-## 📁 Project Structure
-
-```
-cpp-mcp-bridge-demo/
-├── README.md                    # This file
-├── requirements.txt             # Python dependencies
-├── pyproject.toml              # Python project configuration
-├── uv.lock                     # UV lock file
-├── Allmake                     # Build script
-├── .vscode/                    # VS Code configuration
-│   └── mcp.json               # MCP configuration
-├── cpp_app/                    # C++ application
-│   ├── main.cpp               # Main application entry point
-│   ├── commandHandler.hpp     # Command handler header
-│   ├── commandHandler.cpp     # Command handler implementation
-│   ├── commandServer.hpp      # Command server header
-│   ├── commandServer.cpp      # Command server implementation
-│   ├── CMakeLists.txt         # CMake build configuration
-│   └── nlohmann/              # JSON library
-│       └── json.hpp           # JSON header
-├── mcp_server/                 # Python MCP server
-│   ├── __init__.py
-│   └── server.py              # MCP server implementation
-├── build/                      # Build output directory
-│   └── bin/
-│       └── cpp_app.exe        # Compiled C++ application
-└── current_project.json       # Sample project file
-```
+This project demonstrates how to create a bridge between C++ applications and AI assistants using a Python MCP server.
 
 ## 🛠️ Build
 
 ### Prerequisites
 
--   **C++ Compiler**: GCC/Clang/MSVC with C++17 support
+-   **C++ Compiler**: 
+    - Windows: Visual Studio 2019 or later (MSVC)
+    - Linux: GCC 7+ or Clang 6+
+    - macOS: Xcode 10+ or Clang 6+
 -   **CMake**: 3.10 or higher
 -   **Python**: 3.10 or higher
 -   **UV**: Package manager (recommended) or pip
@@ -53,34 +23,19 @@ git clone <repository-url>
 cd cpp-mcp-bridge-demo
 ```
 
-2. **Build C++ application**:
+2. **Build C++ application using CMake Presets**:
 
 ```bash
-# Windows
-mkdir build
-cd build
-cmake ..
-cmake --build . --config Release
-
-# Linux/macOS
-mkdir build && cd build
-cmake ..
-make
+cmake --preset MSVC_x64-debug
+cmake --build --preset MSVC_x64-debug
 ```
 
 3. **Install Python dependencies**:
 
 ```bash
-# Using UV (recommended)
 uv venv
 uv pip install -r requirements.txt
-
-# Using pip
-pip install -r requirements.txt
 ```
-
-4. **Configure Claude Desktop**:
-   Add the MCP server configuration to your Claude desktop config.
 
 ## 🎯 Usage
 
@@ -88,21 +43,17 @@ pip install -r requirements.txt
 
 1. **Start the C++ application**:
 
-```bash
-cd build/bin
-./cpp_app.exe  # Windows
-./cpp_app      # Linux/macOS
-```
+    ```bash
+    .\build\release\MSVC_x64-release\bin\cpp_app.exe
+    ```
 
 2. **Start the MCP server**:
 
-```bash
-python -m mcp_server.server
-```
+    ```bash
+    uv run  mcp-server-demo
+    ```
 
-3. **Use with Claude**:
-   The MCP server will automatically connect to the C++ application and be available in Claude.
-
+3. **Use with your preferred MCP client**
 ### Available Commands
 
 #### Basic Information
@@ -129,24 +80,6 @@ python -m mcp_server.server
     -   `clear_scene`: Clear all objects
     -   `reset_camera`: Reset camera to default position
 
-### Example Usage in Claude
-
-```
-User: "Check the software status"
-Claude: Calls get_software_status() and displays results
-
-User: "Create a red cube named 'my_cube'"
-Claude: Calls create_object(name="my_cube", type="cube", color="red")
-
-User: "List all objects in the scene"
-Claude: Calls list_objects() and formats the display
-
-User: "Save the current project as 'my_scene.json'"
-Claude: Calls save_project(filename="my_scene.json")
-
-User: "Render the scene"
-Claude: Calls execute_software_command(command="render")
-```
 
 ## 🏗️ Architecture
 

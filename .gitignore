@@ -3,6 +3,9 @@ bin/
 build/
 dist/
 
+# CMake files
+CMakeUserPresets.json
+
 # IDE and Editor files
 .vscode/
 .clangd
