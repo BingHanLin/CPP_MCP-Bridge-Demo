@@ -3,6 +3,10 @@ bin/
 build/
 dist/
 
+# Generated protobuf files
+*_pb2.py
+*_pb2_grpc.py
+
 # CMake files
 CMakeUserPresets.json
 

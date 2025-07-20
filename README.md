@@ -2,6 +2,12 @@
 
 This project demonstrates how to create a bridge between C++ applications and AI assistants using a Python MCP server with support for both Socket and gRPC communication.
 
+## Project Structure
+
+-   **`cpp_app/`**: Core C++ application with business logic
+-   **`mcp_server/`**: Python MCP server implementation
+-   **`proto/`**: Protocol buffer definitions for gRPC
+
 ## Features
 
 -   **Python MCP Server**: Implementing Model Context Protocol for AI assistant integration
@@ -30,7 +36,18 @@ cmake --build --preset MSVC_x64-debug
 # 3. Install Python dependencies
 uv venv
 uv pip install -r requirements.txt
+
+
+# 4. Generate Python protobuf files for gRPC support
+uv run python -m grpc_tools.protoc --python_out=./mcp_server --grpc_python_out=./mcp_server --proto_path=./proto ./proto/mcp_service.proto
 ```
+
+> ⚠️ **Note:**
+> After regenerating, you must manually check and update the import style at the top of `mcp_server/mcp_service_pb2_grpc.py` to:
+>
+> ```python
+> from . import mcp_service_pb2 as mcp__service__pb2
+> ```
 
 ### Running the Server
 
@@ -78,16 +95,8 @@ uv run mcp-server-demo --mode grpc --grpc-address localhost:50051
 
 ### Communication Flow
 
-#### Socket Mode
-
 ```
-AI Assistant ←→ Python MCP Server ←→ C++ Application (Socket)
-```
-
-#### gRPC Mode
-
-```
-AI Assistant ←→ Python MCP Server ←→ C++ Application (gRPC)
+AI Assistant ←→ Python MCP Server ←→（Socket or gRPC）←→ C++ Application
 ```
 
 ### Command Format
@@ -115,12 +124,6 @@ AI Assistant ←→ Python MCP Server ←→ C++ Application (gRPC)
 ```
 
 ## 🔧 Development
-
-### Project Structure
-
--   **`cpp_app/`**: Core C++ application with business logic
--   **`mcp_server/`**: Python MCP server implementation
--   **`proto/`**: Protocol buffer definitions for gRPC
 
 ### Adding New Commands
 
