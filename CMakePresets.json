@@ -13,23 +13,7 @@
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/bin/debug/install/${presetName}",
                 "CMAKE_C_COMPILER": "cl.exe",
-                "CMAKE_CXX_COMPILER": "cl.exe",
-                "Qt5_DIR": {
-                    "type": "PATH",
-                    "value": ""
-                },
-                "Qt5_BIN_DIR": {
-                    "type": "PATH",
-                    "value": ""
-                },
-                "PYTHON_EXECUTABLE": {
-                    "type": "PATH",
-                    "value": "${sourceDir}/pybind11-env/Scripts/python.exe"
-                },
-                "pybind11_DIR": {
-                    "type": "PATH",
-                    "value": "${sourceDir}/extern/pybind11/build/lib/pybind11/share/cmake/pybind11"
-                }
+                "CMAKE_CXX_COMPILER": "cl.exe"
             }
         },
         {
@@ -44,23 +28,7 @@
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/bin/release/install/${presetName}",
                 "CMAKE_C_COMPILER": "cl.exe",
-                "CMAKE_CXX_COMPILER": "cl.exe",
-                "Qt5_DIR": {
-                    "type": "PATH",
-                    "value": ""
-                },
-                "Qt5_BIN_DIR": {
-                    "type": "STRING",
-                    "value": ""
-                },
-                "PYTHON_EXECUTABLE": {
-                    "type": "PATH",
-                    "value": "${sourceDir}/pybind11-env/Scripts/python.exe"
-                },
-                "pybind11_DIR": {
-                    "type": "PATH",
-                    "value": "${sourceDir}/extern/pybind11/build/lib/pybind11/share/cmake/pybind11"
-                }
+                "CMAKE_CXX_COMPILER": "cl.exe"
             }
         }
     ],

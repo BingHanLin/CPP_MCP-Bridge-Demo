@@ -1,4 +1,3 @@
-
 project(cpp_app)
 
 # Find required packages
@@ -46,5 +45,20 @@ else()
     target_compile_options(${PROJECT_NAME}
         PRIVATE 
         -Wall -Wextra -Wpedantic
+    )
+endif()
+
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/bin
+    LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/bin
+    ARCHIVE DESTINATION ${CMAKE_SOURCE_DIR}/bin
+)
+
+# Install dependent DLL files (Windows)
+if(WIN32)
+    # Install DLLs from the build output directory
+    install(DIRECTORY ${PROJECT_BINARY_DIR}/
+        DESTINATION ${CMAKE_SOURCE_DIR}/bin
+        FILES_MATCHING PATTERN "*.dll"
     )
 endif()
