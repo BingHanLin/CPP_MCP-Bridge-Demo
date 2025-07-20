@@ -1,0 +1,35 @@
+# Build directories
+bin/
+build/
+dist/
+
+# Generated protobuf files
+*_pb2.py
+*_pb2_grpc.py
+
+# CMake files
+CMakeUserPresets.json
+
+# IDE and Editor files
+.vscode/
+.clangd
+
+# Python virtual environments
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python build artifacts
+*.egg-info/
+.eggs/
+
+# UV specific
+.python-version
+uv.lock
+
+# Environment variables
+.env
+.env.local

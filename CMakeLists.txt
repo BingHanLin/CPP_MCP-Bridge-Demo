@@ -1,0 +1,36 @@
+cmake_minimum_required(VERSION 3.21)
+
+project(cpp_app)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+set(CUSTOMIZE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set(CUSTOMIZE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CUSTOMIZE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/archive")
+
+if (MSVC) # only need for multi config build system
+    foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+        message(STATUS OUTPUTCONFIG....${OUTPUTCONFIG})
+        string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CUSTOMIZE_RUNTIME_OUTPUT_DIRECTORY})
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CUSTOMIZE_LIBRARY_OUTPUT_DIRECTORY})
+        set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CUSTOMIZE_ARCHIVE_OUTPUT_DIRECTORY})
+    endforeach()
+endif()
+
+if(MSVC)
+    file(WRITE ${PROJECT_SOURCE_DIR}/.clangd "CompileFlags:\n")
+    file(APPEND ${PROJECT_SOURCE_DIR}/.clangd "    CompilationDatabase: ${CMAKE_BINARY_DIR}\n")
+    file(APPEND ${PROJECT_SOURCE_DIR}/.clangd "    Add:\n")
+
+    set(MSVC_STANDARD_INCLUDE_PATHS "$ENV{INCLUDE}")
+    foreach(ONE_PATH ${MSVC_STANDARD_INCLUDE_PATHS})
+        file(APPEND ${PROJECT_SOURCE_DIR}/.clangd "        - \"-I${ONE_PATH}\"\n")
+    endforeach()
+endif()
+
+
+add_subdirectory(proto)
+add_subdirectory(cpp_app)
